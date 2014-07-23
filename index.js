@@ -26,6 +26,21 @@ util.inherits(GetKeyOfValue, stream.Transform);
 
 }).call(GetKeyOfValue.prototype);
 
+//==================
+
+function OnEach(onEach) {
+    this.onEach = onEach;
+    stream.Writable.call(this, {objectMode: true});
+}
+
+util.inherits(OnEach, stream.Writable);
+
+(function () {
+    this._write = function (chunk, encoding, next) {
+        this.onEach(chunk, next);
+    };
+}).call(OnEach.prototype);
+
 module.exports = {
     createPrefixReadStream: function (db, prefix, opts) {
         opts = opts || {};
@@ -39,4 +54,5 @@ module.exports = {
     },
 
     GetKeyOfValue: GetKeyOfValue,
+    OnEach: OnEach,
 };
