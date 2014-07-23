@@ -3,11 +3,9 @@ var util = require('util');
 
 function GetKeyOfValue (db, getopts) {
     if (!this instanceof GetKeyOfValue) {
-        return new GetKeyOfValue(db, opts);
+        return new GetKeyOfValue(db, getopts);
     }
-    var opts = {};
-    opts.objectMode = true;
-    stream.Transform.call(this, opts);
+    stream.Transform.call(this, {objectMode: true});
 
     this.db = db;
     this.getopts = getopts;
