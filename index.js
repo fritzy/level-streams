@@ -9,6 +9,7 @@ function GetKeyOfValue (db, getopts) {
 
     this.db = db;
     this.getopts = getopts;
+    this.last = null;
 }
 
 util.inherits(GetKeyOfValue, stream.Transform);
@@ -16,12 +17,18 @@ util.inherits(GetKeyOfValue, stream.Transform);
 (function () {
 
     this._transform = function (chunk, e, next) {
-        this.db.get(chunk.value, this.getopts, function (err, value) {
-            chunk.key = chunk.value;
+        this.last = chunk.key;
+        var self = this;
+        var key = chunk.value;
+        if (this.getopts.keyValue) {
+            key = key[this.getopts.keyValue];
+        }
+        this.db.get(key, this.getopts, function (err, value) {
+            chunk.key = key;
             chunk.value = value;
-            this.push(chunk);
+            self.push(chunk);
             next();
-        }.bind(this));
+        });
     };
 
 }).call(GetKeyOfValue.prototype);
@@ -46,8 +53,10 @@ module.exports = {
         opts = opts || {};
         opts.start = opts.end = prefix;
         if (opts.reverse) {
-            opts.start += '~';
+            opts.start += '!';
+            opts.end += '~';
         } else {
+            opts.start += '';
             opts.end += '~';
         }
         return db.createReadStream(opts);
